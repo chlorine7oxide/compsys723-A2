@@ -1,0 +1,65 @@
+module car_driving_control:
+
+    % Controller States Enumeration
+    type ControlState;
+    constant OFF: ControlState;
+    constant ON: ControlState;
+    constant STDBY: ControlState;
+    constant DISABLE: ControlState;
+
+    %Inputs
+    input CruiseState : ControlState;
+    input Accel : float;
+    input CruiseSpeed : float;
+    input On;
+
+    %Outputs
+    output ThrottleCmd : float;
+
+    %Constants
+    constant Kp = 8.113f : float;
+    constant Ki = 0.5f : float;
+    constant THROTTLESATMAX = 45.0f : float;
+    constant PEDALSMIN = 3.0f : float;
+
+    loop
+        var current_speed : float, integral : float, throttle : float, last_cruise_speed : float, current_state : ControlState in
+            loop
+                abort
+                    current_speed := 0.0f;
+                    integral := 0.0f;
+                    throttle := 0.0f;
+                    pause;
+                when immediate On;
+
+                if CruiseState = ON then
+                    integral := integral + current_speed - CruiseSpeed; % increment integral term 
+                    throttle := - Kp * (current_speed - CruiseSpeed) - Ki * integral;
+                    if throttle > THROTTLESATMAX then
+                        throttle := THROTTLESATMAX;
+                    elsif throttle < -THROTTLESATMAX then
+                        throttle := -THROTTLESATMAX;
+                    end if;
+                    current_speed := current_speed + throttle;
+                    emit ThrottleCmd(throttle);
+                    pause;
+                elsif Accel > PEDALSMIN then
+                    throttle := Accel;
+                    if throttle > THROTTLESATMAX then
+                        throttle := THROTTLESATMAX;
+                    elsif throttle < -THROTTLESATMAX then
+                        throttle := -THROTTLESATMAX;
+                    end if;
+                    current_speed := current_speed + throttle;
+                    integral := 0.0f;
+                    emit ThrottleCmd(throttle);
+                    pause;
+                end if;
+            end loop;
+            ||
+            every CruiseState do current_state := ?CruiseState;
+            ||
+            every CruiseSpeed do last_cruise_speed := ?CruiseSpeed;
+        end var;
+    end loop;
+end module

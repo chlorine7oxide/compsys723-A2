@@ -1,0 +1,98 @@
+module cruise_controller:
+    % Controller States Enumeration
+    type ControlState;
+    constant OFF: ControlState;
+    constant ON: ControlState;
+    constant STDBY: ControlState;
+    constant DISABLE: ControlState;
+
+    % Inputs
+    input On;
+    input Off;
+    input Resume;
+    input QuickDecel;
+    input QuickAccel;
+    input Accel : float;
+    input Brake : float;
+    input Speed : float;
+
+    %Outputs
+    output CruiseSpeed : float;
+    output ThrottleCmd : float;
+    output CruiseState : ControlState;
+
+    % Constants
+    constant SPEEDMIN  = 30.0f : float;
+    constant SPEEDMAX = 150.0f : float;
+    constant Kp = 8.113f : float;
+    constant Ki = 0.5f : float;
+    constant THROTTLESATMAX = 45.0f : float;
+    constant PEDALSMIN = 3.0f : float;
+
+    loop
+        abort
+            emit CruiseState(OFF);
+            emit CruiseSpeed(?Speed);
+            pause;
+        when immediate On;
+
+        signal stateChange, regulate in
+            abort
+                trap OffPressed in
+                    every Off do exit OffPressed end
+                    ||
+                    var current_state := ON : ControlState in
+                    var lastState := OFF : ControlState in
+                        loop
+
+                        emit CruiseState(current_state);
+
+                        if current_state = ON then
+                            abort
+                                emit CruiseState(current_state);
+                                if (?Accel > PEDALSMIN or ?Speed > SPEEDMAX or ?Speed < SPEEDMIN) then
+                                    current_state := DISABLE;
+                                end if;
+                                if (?Brake > PEDALSMIN) then
+                                    current_state := STDBY;
+                                end if;
+                                lastState := ON;
+                                emit regulate;
+                            when stateChange;
+
+                        elsif current_state = DISABLE then
+                            weak abort
+                                emit CruiseSpeed(?Speed);
+                                if (?Accel < PEDALSMIN and ?Speed < SPEEDMAX and ?Speed > SPEEDMIN) then
+                                    current_state := ON;
+                                end if;
+                                if (?Brake < PEDALSMIN) then
+                                    current_state := STDBY;
+                                end if;
+                                lastState := DISABLE;
+                            when stateChange;
+
+                        elsif current_state = STDBY then
+                            abort
+                                present (Resume) then
+                                    if lastState = ON then
+                                        current_state := ON;
+                                    elsif lastState = DISABLE then
+                                        current_state := DISABLE;
+                                    end if;
+                                end present;
+                                lastState := STDBY;
+                            when stateChange;
+                        end if;
+
+                        pause;
+                        end loop;
+                    end var;
+                    end var;
+                end trap
+            when Off;
+        end signal;
+        pause;
+    end loop;
+
+end module
