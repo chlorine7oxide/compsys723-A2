@@ -201,7 +201,9 @@ module cruise_speed_management:
             if cur_speed > SpeedMax then
                 cur_speed := SpeedMax;
             end if;
-            emit CruiseSpeed(cur_speed);
+	    if ?CruiseState = ON_STATE then
+                emit CruiseSpeed(cur_speed);
+	    end if;
             pause;
         end loop;
     end var;
