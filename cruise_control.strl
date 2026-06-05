@@ -1,0 +1,252 @@
+module PedalDetection:
+    input Accel : float, Brake : float;
+    output Accel_Active, Brake_Active;
+
+    constant PEDALSMIN = 3.0f : float;
+
+    loop
+        present Accel then
+            if (?Accel > PEDALSMIN) then
+                emit Accel_Active;
+            end if;
+        end present;
+        present Brake then
+            if (?Brake > PEDALSMIN) then
+                emit Brake_Active;
+            end if;
+        end present;
+    pause;
+    end loop;
+
+end module
+
+module CruiseSpeedCheck:
+    input Speed : float;
+    output InvalidCruiseSpeed;
+
+    constant SPEEDMIN = 30.0f : float;
+    constant SPEEDMAX = 150.0f : float;
+
+    loop
+        present Speed then
+            if ((?Speed > SPEEDMAX) or (?Speed < SPEEDMIN)) then
+                emit InvalidCruiseSpeed;
+            end if;
+        end present;
+    pause;
+    end loop;
+
+end module
+
+module CruiseStateHandler:
+    constant OFF_STATE     = 1 : integer;
+    constant ON_STATE      = 2 : integer;
+    constant STDBY_STATE   = 3 : integer;
+    constant DISABLE_STATE = 4 : integer;
+
+    input On, Off, Resume, Accel_Active, Brake_Active, InvalidCruiseSpeed;
+    output CruiseState : integer;
+
+    loop
+        % OFF state
+        abort 
+            sustain CruiseState(OFF_STATE);
+        when On;
+
+        % ON state
+        abort
+            loop
+                abort 
+                    sustain CruiseState(ON_STATE);
+                when immediate [Accel_Active or InvalidCruiseSpeed or Brake_Active];
+
+                present Brake_Active then
+                    % STDBY state
+                    abort
+                        loop
+                            emit CruiseState(STDBY_STATE);
+                        pause;
+                        end loop;
+                    when Resume;
+                    % Decide which state to go to after Resume received
+                    present Accel_Active then
+                        % STDBY -> DISABLE
+                        abort
+                            loop
+                                emit CruiseState(DISABLE_STATE);
+                            pause;
+                            end loop;
+                        when [not Accel_Active and not InvalidCruiseSpeed];
+                    else
+                        present InvalidCruiseSpeed then
+                            % DISABLE state
+                            abort
+                                loop
+                                    emit CruiseState(DISABLE_STATE);
+                                pause;
+                                end loop;
+                            when [not Accel_Active and not InvalidCruiseSpeed];
+                        end present;
+                    end present;
+
+                else
+                    % DISABLE state (Accel or InvalidCruiseSpeed)
+                    abort
+                        loop
+                            emit CruiseState(DISABLE_STATE);
+                        pause;
+                        end loop;
+                    when [not Accel_Active and not InvalidCruiseSpeed];
+                    % recovers to top of ON loop
+
+                end present;
+            end loop;
+        when immediate Off;
+    end loop;
+
+end module
+
+module car_driving_control:
+
+    % Controller States Enumeration
+    constant OFF_STATE = 1: integer;
+    constant ON_STATE = 2: integer;
+    constant STDBY_STATE = 3: integer;
+    constant DISABLE_STATE = 4: integer;
+
+    %Inputs
+    input CruiseState : integer;
+    input Accel : float;
+    input CruiseSpeed : float;
+    input Speed : float;
+    input On;
+    input Accel_Active;
+
+    %Outputs
+    output ThrottleCmd : float;
+
+    function regulateThrottle(integer, float, float) : float;
+
+    var prev_state := 9 : integer in 
+            loop
+            pause;
+            present CruiseState then
+                if ?CruiseState = OFF_STATE then
+                    present Accel_Active then
+                        emit ThrottleCmd(?Accel); 
+                        prev_state := OFF_STATE;
+                    end present;
+                elsif ?CruiseState = ON_STATE then
+                    if prev_state = OFF_STATE then
+                        emit ThrottleCmd(regulateThrottle(1, ?CruiseSpeed, ?Speed)); 
+                        %emit ThrottleCmd(1.0f); 
+                    else
+                        emit ThrottleCmd(regulateThrottle(0, ?CruiseSpeed, ?Speed)); 
+                        %emit ThrottleCmd(0.0f); 
+                    end if;
+                    prev_state := ON_STATE;
+                elsif ?CruiseState = STDBY_STATE or ?CruiseState = DISABLE_STATE then
+                    prev_state := 9;
+                end if;
+            end present;
+        end loop;
+    end var;
+end module
+
+module cruise_speed_management:
+
+    % Controller States Enumeration
+    constant OFF_STATE     = 1 : integer;
+    constant ON_STATE      = 2 : integer;
+    constant STDBY_STATE   = 3 : integer;
+    constant DISABLE_STATE = 4 : integer;
+
+    %Inputs
+    input CruiseState : integer;
+    input Speed : float;
+    input On;
+    input Set;
+    input QuickAccel;
+    input QuickDecel;
+
+    %Outputs
+    output CruiseSpeed : float;
+
+    %Constants
+    constant SpeedMin = 30.0f : float;
+    constant SpeedMax = 150.0f : float;
+    constant SpeedInc = 10.0f : float;
+
+    var cur_speed := 0.0f : float in
+        await On;
+        cur_speed := ?Speed;
+        
+        loop
+            if ?CruiseState <> OFF_STATE then
+                present QuickAccel then
+                    cur_speed := cur_speed + SpeedInc;
+                else
+                    present QuickDecel then
+                        cur_speed := cur_speed - SpeedInc;
+                    else
+                        present Set then
+                            cur_speed := ?Speed;
+                        end present;
+                    end present;
+                end present;
+            end if;
+            if cur_speed < SpeedMin then
+                cur_speed := SpeedMin;
+            end if;
+            if cur_speed > SpeedMax then
+                cur_speed := SpeedMax;
+            end if;
+	    if ?CruiseState = OFF_STATE then
+                emit CruiseSpeed(cur_speed);
+	    end if;
+            pause;
+        end loop;
+    end var;
+
+
+end module
+
+
+module cruise_control:
+
+    % External Inputs
+    input On, Off, Set, Resume, QuickDecel, QuickAccel;
+    input Accel : float;
+    input Brake : float;
+    input Speed : float;
+
+    % External Outputs
+    output CruiseSpeed : float;
+    output ThrottleCmd : float;
+    output CruiseState : integer;
+
+    % Constants
+    constant SPEEDMIN       = 30.0f  : float;
+    constant SPEEDMAX       = 150.0f : float;
+    constant SPEEDINC       = 2.5f   : float;
+    constant Kp             = 8.113f : float;
+    constant Ki             = 0.5f   : float;
+    constant THROTTLESATMAX = 45.0f  : float;
+    constant PEDALSMIN      = 3.0f   : float;
+
+    % Internal signals connecting submodules
+    signal Accel_Active, Brake_Active, InvalidCruiseSpeed in
+
+        run PedalDetection
+        ||
+        run CruiseSpeedCheck
+        ||
+        run CruiseStateHandler
+        ||
+        run cruise_speed_management
+        ||
+        run car_driving_control
+
+    end signal;
+
+end module

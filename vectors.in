@@ -1,0 +1,217 @@
+% Initial startup phase - car accelerating, cruise OFF
+Accel(0.0) Brake(0.0) Speed(0.0);
+Accel(0.0) Brake(0.0) Speed(0.0);
+Accel(51.234) Brake(0.0) Speed(0.0);
+Accel(51.234) Brake(0.0) Speed(2.0937);
+Accel(51.234) Brake(0.0) Speed(4.1862);
+Accel(51.234) Brake(0.0) Speed(6.2772);
+Accel(51.234) Brake(0.0) Speed(8.3661);
+Accel(89.687) Brake(0.0) Speed(10.453);
+Accel(89.687) Brake(0.0) Speed(13.051);
+Accel(89.687) Brake(0.0) Speed(15.644);
+Accel(89.687) Brake(0.0) Speed(18.233);
+Accel(89.687) Brake(0.0) Speed(20.816);
+Accel(89.687) Brake(0.0) Speed(23.393);
+Accel(89.687) Brake(0.0) Speed(25.962);
+Accel(89.687) Brake(0.0) Speed(28.524);
+Accel(89.687) Brake(0.0) Speed(31.078);
+Accel(89.687) Brake(0.0) Speed(33.623);
+Accel(0.0) Brake(0.0) Speed(36.158);
+
+% Test 1: Turn ON at valid speed (~36 km/h)
+On Accel(0.0) Brake(0.0) Speed(36.049);
+Accel(0.0) Brake(0.0) Speed(35.94);
+Accel(0.0) Brake(0.0) Speed(35.831);
+Accel(0.0) Brake(0.0) Speed(35.722);
+Accel(0.0) Brake(0.0) Speed(35.613);
+Accel(0.0) Brake(0.0) Speed(35.504);
+Accel(0.0) Brake(0.0) Speed(35.395);
+Accel(0.0) Brake(0.0) Speed(35.286);
+Accel(0.0) Brake(0.0) Speed(35.177);
+Accel(0.0) Brake(0.0) Speed(35.068);
+
+% Test 2: Cruise maintains target speed - slight deceleration then recovery
+Accel(0.0) Brake(0.0) Speed(34.959);
+Accel(0.0) Brake(0.0) Speed(34.850);
+Accel(0.0) Brake(0.0) Speed(34.741);
+Accel(0.0) Brake(0.0) Speed(34.632);
+Accel(0.0) Brake(0.0) Speed(34.741);
+Accel(0.0) Brake(0.0) Speed(34.850);
+Accel(0.0) Brake(0.0) Speed(34.959);
+Accel(0.0) Brake(0.0) Speed(35.068);
+Accel(0.0) Brake(0.0) Speed(35.177);
+Accel(0.0) Brake(0.0) Speed(35.286);
+
+% Test 3: QuickAccel - increase target speed by 2.5 km/h
+QuickAccel Accel(0.0) Brake(0.0) Speed(35.395);
+Accel(0.0) Brake(0.0) Speed(35.504);
+Accel(0.0) Brake(0.0) Speed(35.613);
+Accel(0.0) Brake(0.0) Speed(35.722);
+Accel(0.0) Brake(0.0) Speed(35.831);
+Accel(0.0) Brake(0.0) Speed(35.940);
+Accel(0.0) Brake(0.0) Speed(36.049);
+Accel(0.0) Brake(0.0) Speed(36.158);
+Accel(0.0) Brake(0.0) Speed(36.267);
+Accel(0.0) Brake(0.0) Speed(36.376);
+
+% Test 4: Multiple QuickAccel presses
+QuickAccel Accel(0.0) Brake(0.0) Speed(36.485);
+Accel(0.0) Brake(0.0) Speed(36.594);
+QuickAccel Accel(0.0) Brake(0.0) Speed(36.703);
+Accel(0.0) Brake(0.0) Speed(36.812);
+Accel(0.0) Brake(0.0) Speed(36.921);
+Accel(0.0) Brake(0.0) Speed(37.030);
+Accel(0.0) Brake(0.0) Speed(37.139);
+Accel(0.0) Brake(0.0) Speed(37.248);
+Accel(0.0) Brake(0.0) Speed(37.357);
+Accel(0.0) Brake(0.0) Speed(37.466);
+
+% Test 5: QuickDecel - decrease target speed
+QuickDecel Accel(0.0) Brake(0.0) Speed(37.357);
+Accel(0.0) Brake(0.0) Speed(37.248);
+Accel(0.0) Brake(0.0) Speed(37.139);
+Accel(0.0) Brake(0.0) Speed(37.030);
+Accel(0.0) Brake(0.0) Speed(36.921);
+Accel(0.0) Brake(0.0) Speed(36.812);
+Accel(0.0) Brake(0.0) Speed(36.703);
+Accel(0.0) Brake(0.0) Speed(36.594);
+Accel(0.0) Brake(0.0) Speed(36.485);
+Accel(0.0) Brake(0.0) Speed(36.376);
+
+% Test 6: Set button - set current speed as cruise target
+Set Accel(0.0) Brake(0.0) Speed(36.376);
+Accel(0.0) Brake(0.0) Speed(36.376);
+Accel(0.0) Brake(0.0) Speed(36.376);
+Accel(0.0) Brake(0.0) Speed(36.376);
+Accel(0.0) Brake(0.0) Speed(36.376);
+Accel(0.0) Brake(0.0) Speed(36.376);
+
+% Test 7: Brake pedal - transition to STDBY state
+Accel(0.0) Brake(15.0) Speed(36.376);
+Accel(0.0) Brake(15.0) Speed(35.800);
+Accel(0.0) Brake(15.0) Speed(35.224);
+Accel(0.0) Brake(15.0) Speed(34.648);
+Accel(0.0) Brake(15.0) Speed(34.072);
+Accel(0.0) Brake(0.0) Speed(33.496);
+Accel(0.0) Brake(0.0) Speed(33.496);
+Accel(0.0) Brake(0.0) Speed(33.496);
+Accel(0.0) Brake(0.0) Speed(33.496);
+
+% Test 8: Resume from STDBY at valid conditions - back to ON
+Resume Accel(0.0) Brake(0.0) Speed(33.496);
+Accel(0.0) Brake(0.0) Speed(33.605);
+Accel(0.0) Brake(0.0) Speed(33.714);
+Accel(0.0) Brake(0.0) Speed(33.823);
+Accel(0.0) Brake(0.0) Speed(33.932);
+Accel(0.0) Brake(0.0) Speed(34.041);
+Accel(0.0) Brake(0.0) Speed(34.150);
+Accel(0.0) Brake(0.0) Speed(34.259);
+Accel(0.0) Brake(0.0) Speed(34.368);
+Accel(0.0) Brake(0.0) Speed(34.477);
+
+% Test 9: Accelerator pedal pressed - transition to DISABLE
+Accel(50.0) Brake(0.0) Speed(34.586);
+Accel(50.0) Brake(0.0) Speed(35.162);
+Accel(50.0) Brake(0.0) Speed(35.738);
+Accel(50.0) Brake(0.0) Speed(36.314);
+Accel(50.0) Brake(0.0) Speed(36.890);
+Accel(50.0) Brake(0.0) Speed(37.466);
+Accel(0.0) Brake(0.0) Speed(38.042);
+
+% Test 10: Resume from DISABLE - back to ON
+Resume Accel(0.0) Brake(0.0) Speed(37.466);
+Accel(0.0) Brake(0.0) Speed(37.357);
+Accel(0.0) Brake(0.0) Speed(37.248);
+Accel(0.0) Brake(0.0) Speed(37.139);
+Accel(0.0) Brake(0.0) Speed(37.030);
+Accel(0.0) Brake(0.0) Speed(36.921);
+Accel(0.0) Brake(0.0) Speed(36.812);
+Accel(0.0) Brake(0.0) Speed(36.703);
+Accel(0.0) Brake(0.0) Speed(36.594);
+Accel(0.0) Brake(0.0) Speed(36.485);
+
+% Test 11: Speed exceeds SpeedMax (150 km/h) - transition to DISABLE
+Accel(0.0) Brake(0.0) Speed(145.0);
+Accel(0.0) Brake(0.0) Speed(147.5);
+Accel(0.0) Brake(0.0) Speed(150.0);
+Accel(0.0) Brake(0.0) Speed(152.5);
+Accel(0.0) Brake(0.0) Speed(155.0);
+Accel(0.0) Brake(0.0) Speed(150.0);
+Accel(0.0) Brake(0.0) Speed(148.0);
+Accel(0.0) Brake(0.0) Speed(146.0);
+Accel(0.0) Brake(0.0) Speed(144.0);
+
+% Test 12: Resume when speed back in valid range
+Resume Accel(0.0) Brake(0.0) Speed(140.0);
+Accel(0.0) Brake(0.0) Speed(138.0);
+Accel(0.0) Brake(0.0) Speed(136.0);
+Accel(0.0) Brake(0.0) Speed(134.0);
+Accel(0.0) Brake(0.0) Speed(132.0);
+Accel(0.0) Brake(0.0) Speed(130.0);
+
+% Test 13: Speed below SpeedMin (30 km/h) - transition to DISABLE
+Accel(0.0) Brake(0.0) Speed(32.0);
+Accel(0.0) Brake(0.0) Speed(30.0);
+Accel(0.0) Brake(0.0) Speed(28.0);
+Accel(0.0) Brake(0.0) Speed(26.0);
+Accel(0.0) Brake(0.0) Speed(24.0);
+Accel(0.0) Brake(0.0) Speed(30.5);
+
+% Test 14: Resume when speed back in range
+Resume Accel(0.0) Brake(0.0) Speed(32.0);
+Accel(0.0) Brake(0.0) Speed(34.0);
+Accel(0.0) Brake(0.0) Speed(36.0);
+Accel(0.0) Brake(0.0) Speed(38.0);
+Accel(0.0) Brake(0.0) Speed(40.0);
+
+% Test 15: QuickAccel at upper boundary (approaching SpeedMax)
+QuickAccel Accel(0.0) Brake(0.0) Speed(147.0);
+Accel(0.0) Brake(0.0) Speed(148.0);
+QuickAccel Accel(0.0) Brake(0.0) Speed(149.0);
+Accel(0.0) Brake(0.0) Speed(149.5);
+QuickAccel Accel(0.0) Brake(0.0) Speed(150.0);
+Accel(0.0) Brake(0.0) Speed(150.0);
+
+% Test 16: Off button - return to OFF state
+Off Accel(0.0) Brake(0.0) Speed(150.0);
+Accel(0.0) Brake(0.0) Speed(150.0);
+Accel(0.0) Brake(0.0) Speed(150.0);
+Accel(0.0) Brake(0.0) Speed(150.0);
+
+% Test 17: Turn ON again at high speed
+On Accel(0.0) Brake(0.0) Speed(150.0);
+Accel(0.0) Brake(0.0) Speed(150.0);
+Accel(0.0) Brake(0.0) Speed(150.0);
+
+% Test 18: QuickDecel at lower boundary (approaching SpeedMin)
+QuickDecel Accel(0.0) Brake(0.0) Speed(32.0);
+Accel(0.0) Brake(0.0) Speed(31.0);
+QuickDecel Accel(0.0) Brake(0.0) Speed(30.0);
+Accel(0.0) Brake(0.0) Speed(30.0);
+QuickDecel Accel(0.0) Brake(0.0) Speed(30.0);
+Accel(0.0) Brake(0.0) Speed(30.0);
+
+% Test 19: Brake then Resume with Accel active - transition to DISABLE
+Accel(0.0) Brake(25.0) Speed(30.0);
+Accel(0.0) Brake(25.0) Speed(29.5);
+Accel(0.0) Brake(0.0) Speed(29.0);
+Resume Accel(5.0) Brake(0.0) Speed(29.5);
+Accel(5.0) Brake(0.0) Speed(30.0);
+Accel(5.0) Brake(0.0) Speed(31.0);
+Accel(0.0) Brake(0.0) Speed(32.0);
+
+% Test 20: Complex sequence - On, QuickAccel, Brake, Resume, Off
+On Accel(0.0) Brake(0.0) Speed(50.0);
+Accel(0.0) Brake(0.0) Speed(50.0);
+QuickAccel Accel(0.0) Brake(0.0) Speed(50.1);
+QuickAccel Accel(0.0) Brake(0.0) Speed(50.2);
+Accel(0.0) Brake(0.0) Speed(51.0);
+Accel(0.0) Brake(0.0) Speed(52.0);
+Accel(0.0) Brake(20.0) Speed(51.0);
+Accel(0.0) Brake(20.0) Speed(50.0);
+Accel(0.0) Brake(0.0) Speed(49.0);
+Resume Accel(0.0) Brake(0.0) Speed(50.0);
+Accel(0.0) Brake(0.0) Speed(51.0);
+Off Accel(0.0) Brake(0.0) Speed(52.0);
+Accel(0.0) Brake(0.0) Speed(53.0);
+Accel(0.0) Brake(0.0) Speed(54.0);

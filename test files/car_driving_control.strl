@@ -1,0 +1,44 @@
+module car_driving_control:
+
+    % Controller States Enumeration
+    constant OFF_STATE = 0: integer;
+    constant ON_STATE = 1: integer;
+    constant STDBY_STATE = 2: integer;
+    constant DISABLE_STATE = 3: integer;
+
+    %Inputs
+    input CruiseState : integer;
+    input Accel : float;
+    input CruiseSpeed : float;
+    input Speed : float;
+    input On;
+
+    %Outputs
+    output ThrottleCmd : float;
+
+    function regulateThrottle(integer, float, float) : float;
+
+    var prev_state := 9 : integer in 
+        loop
+            present CruiseState then
+                if ?CruiseState = OFF_STATE then
+                    emit ThrottleCmd(?Speed); 
+                    prev_state := OFF_STATE;
+                
+                elsif ?CruiseState = ON_STATE then
+                    if prev_state = OFF_STATE then
+                        emit ThrottleCmd(regulateThrottle(1, ?CruiseSpeed, ?Speed)); 
+                    else
+                        emit ThrottleCmd(regulateThrottle(0, ?CruiseSpeed, ?Speed)); 
+                    end if;
+                    
+                    prev_state := ON_STATE;
+                    
+                elsif ?CruiseState = STDBY_STATE or ?CruiseState = DISABLE_STATE then
+                    prev_state := 9;
+                
+                end if;
+            end present;
+        end loop;
+    end var;
+end module

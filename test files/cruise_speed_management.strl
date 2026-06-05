@@ -1,0 +1,49 @@
+module cruise_speed_management:
+
+    % Controller States Enumeration
+    constant OFF_STATE     = 0 : integer;
+    constant ON_STATE      = 1 : integer;
+    constant STDBY_STATE   = 2 : integer;
+    constant DISABLE_STATE = 3 : integer;
+
+    %Inputs
+    input CruiseState : integer;
+    input current_speed : float;
+    input On;
+    input Set;
+    input QuickAccel;
+    input QuickDecel;
+
+    %Outputs
+    output CruiseSpeed : float;
+
+    %Constants
+    constant SpeedMin = 30.0f : float;
+    constant SpeedMax = 150.0f : float;
+    constant SpeedInc = 10.0f : float;
+
+    var speed := 0.0f : float in
+        await On;
+        speed := ?current_speed;
+        
+        loop
+            if ?CruiseState <> OFF_STATE then
+                present QuickAccel then
+                    speed := speed + SpeedInc;
+                else
+                    present QuickDecel then
+                        speed := speed - SpeedInc;
+                    else
+                        present Set then
+                            speed := ?current_speed;
+                        end present;
+                    end present;
+                end present;
+            end if;
+            emit CruiseSpeed(speed);
+            pause;
+        end loop;
+    end var;
+
+
+end module

@@ -39,31 +39,32 @@ module CruiseSpeedCheck:
 end module
 
 module CruiseStateHandler:
-    type ControlState;
-    constant OFF     : ControlState;
-    constant ON      : ControlState;
-    constant STDBY   : ControlState;
-    constant DISABLE : ControlState;
+    constant OFF_STATE     = 0 : integer;
+    constant ON_STATE      = 1 : integer;
+    constant STDBY_STATE   = 2 : integer;
+    constant DISABLE_STATE = 3 : integer;
 
     input On, Off, Resume, Accel_Active, Brake_Active, InvalidCruiseSpeed;
-    output CruiseState : ControlState;
+    output CruiseState : integer;
 
     loop
         % OFF state
-        emit CruiseState(OFF);
-        await On;
+        abort 
+            sustain CruiseState(OFF_STATE);
+        when On;
 
         % ON state
         abort
             loop
-                emit CruiseState(ON);
-                await immediate [Accel_Active or InvalidCruiseSpeed or Brake_Active];
+                abort 
+                    sustain CruiseState(ON_STATE);
+                when immediate [Accel_Active or InvalidCruiseSpeed or Brake_Active];
 
                 present Brake_Active then
                     % STDBY state
                     abort
                         loop
-                            emit CruiseState(STDBY);
+                            emit CruiseState(STDBY_STATE);
                         pause;
                         end loop;
                     when Resume;
@@ -72,7 +73,7 @@ module CruiseStateHandler:
                         % STDBY -> DISABLE
                         abort
                             loop
-                                emit CruiseState(DISABLE);
+                                emit CruiseState(DISABLE_STATE);
                             pause;
                             end loop;
                         when [not Accel_Active and not InvalidCruiseSpeed];
@@ -81,7 +82,7 @@ module CruiseStateHandler:
                             % DISABLE state
                             abort
                                 loop
-                                    emit CruiseState(DISABLE);
+                                    emit CruiseState(DISABLE_STATE);
                                 pause;
                                 end loop;
                             when [not Accel_Active and not InvalidCruiseSpeed];
@@ -92,7 +93,7 @@ module CruiseStateHandler:
                     % DISABLE state (Accel or InvalidCruiseSpeed)
                     abort
                         loop
-                            emit CruiseState(DISABLE);
+                            emit CruiseState(DISABLE_STATE);
                         pause;
                         end loop;
                     when [not Accel_Active and not InvalidCruiseSpeed];
@@ -101,19 +102,11 @@ module CruiseStateHandler:
                 end present;
             end loop;
         when immediate Off;
-
-    pause;
     end loop;
 
 end module
 
 module iteration2:
-    % Controller States Enumeration
-    type ControlState;
-    constant OFF     : ControlState;
-    constant ON      : ControlState;
-    constant STDBY   : ControlState;
-    constant DISABLE : ControlState;
 
     % External Inputs
     input On, Off, Resume, QuickDecel, QuickAccel;
@@ -124,7 +117,7 @@ module iteration2:
     % External Outputs
     output CruiseSpeed : float;
     output ThrottleCmd : float;
-    output CruiseState : ControlState;
+    output CruiseState : integer;
 
     % Constants
     constant SPEEDMIN       = 30.0f  : float;
