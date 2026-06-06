@@ -175,7 +175,7 @@ module cruise_speed_management:
     %Constants
     constant SpeedMin = 30.0f : float;
     constant SpeedMax = 150.0f : float;
-    constant SpeedInc = 10.0f : float;
+    constant SpeedInc = 2.5f : float;
 
     var cur_speed := 0.0f : float in
         await On;
